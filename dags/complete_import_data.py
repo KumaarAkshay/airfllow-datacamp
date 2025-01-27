@@ -72,6 +72,10 @@ create_table_task = PostgresOperator(
         trip_type              text,
         congestion_surcharge   text
     );
+
+    COMMIT;
+
+    TRUNCATE TABLE green_staging;
     """,
     dag=dag,
 )
@@ -88,5 +92,59 @@ load_data_task = PythonOperator(
     dag=dag,
 )
 
+# Task to create the PostgreSQL table
+load_data_final_tbl = PostgresOperator(
+    task_id='inserting_to_final_tbl',
+    postgres_conn_id=conn_name,
+    sql=f"""
+    INSERT INTO green_final (
+        unique_row_id, filename, vendorid, lpep_pickup_datetime, lpep_dropoff_datetime, 
+        store_and_fwd_flag, ratecodeid, pulocationid, dolocationid, 
+        passenger_count, trip_distance, fare_amount, extra, mta_tax, 
+        tip_amount, tolls_amount, ehail_fee, improvement_surcharge, 
+        total_amount, payment_type, trip_type, congestion_surcharge
+    )
+    SELECT 
+        md5(
+            coalesce(cast(vendorid as text), '') ||
+            coalesce(cast(lpep_pickup_datetime as text), '') || 
+            coalesce(cast(lpep_dropoff_datetime as text), '') || 
+            coalesce(cast(pulocationid as text), '') || 
+            coalesce(cast(dolocationid as text), '') || 
+            coalesce(cast(fare_amount as text), '') || 
+            coalesce(cast(trip_distance as text), '')
+        ) AS unique_row_id,
+        '{filename}' AS filename,
+        vendorid::text, 
+        lpep_pickup_datetime::timestamp, 
+        lpep_dropoff_datetime::timestamp, 
+        store_and_fwd_flag::text, 
+        ratecodeid::text, 
+        pulocationid::text, 
+        dolocationid::text, 
+        passenger_count::integer, 
+        trip_distance::double precision, 
+        fare_amount::double precision, 
+        extra::double precision, 
+        mta_tax::double precision, 
+        tip_amount::double precision, 
+        tolls_amount::double precision, 
+        ehail_fee::double precision, 
+        improvement_surcharge::double precision, 
+        total_amount::double precision, 
+        payment_type::integer, 
+        trip_type::integer, 
+        congestion_surcharge::double precision
+    FROM green_staging
+    ON CONFLICT (unique_row_id) DO NOTHING;
+
+    COMMIT;
+
+    INSERT INTO input_logs (dag_name, file_name, run_time)
+    VALUES ('Green_single', '{filename}',CURRENT_DATE);
+    """,
+    dag=dag,
+)
+
 # Define task dependencies
-download_csv_task >> create_table_task >> load_data_task
+download_csv_task >> create_table_task >> load_data_task >> load_data_final_tbl
