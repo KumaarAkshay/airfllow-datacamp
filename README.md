@@ -26,7 +26,7 @@ Username: airflow
 ### Run Table Creation Script
 Execute the following SQL script to create staging, final, and log tables:
 ```sh
-psql -U airflow -d your_database -f create_tble.sql
+psql -U airflow -d your_database -f table_schema.sql
 ```
 
 ## Add Connection in Airflow
