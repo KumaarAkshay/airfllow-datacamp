@@ -46,6 +46,10 @@
   curl -o sample_files/datacurl.csv "https://cdn.wsform.com/wp-content/uploads/2020/06/color_srgb.csv"
   ```
   - Equivalent to `wget -O`.
+- **Download and unzip file:**
+  ```sh
+  wget -qO- 'https://github.com/DataTalksClub/nyc-tlc-data/releases/download/green/green_tripdata_2020-12.csv.gz' | gunzip > output.csv
+  ```
 
 ---
 
