@@ -14,7 +14,7 @@ default_args = {
 
 # Instantiate the DAG
 dag = DAG(
-    'pwd_test',
+    'echo_pwd',
     default_args=default_args,
     description='A DAG to echo the current working directory',
     schedule_interval=None,  # Run on-demand

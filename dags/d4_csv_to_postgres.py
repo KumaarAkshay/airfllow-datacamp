@@ -28,7 +28,7 @@ default_args = {
 
 # Instantiate the DAG
 dag = DAG(
-    'csv_upload_to_ps',
+    'csv_to_postgres',
     default_args=default_args,
     description='Upload data to postgres db PostgreSQL',
     schedule_interval=None,  # Run on-demand

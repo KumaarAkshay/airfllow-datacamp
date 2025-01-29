@@ -12,7 +12,7 @@ default_args = {
 }
 
 dag = DAG(
-    'create_log_table_and_insert_data',
+    'postgres_query',
     default_args=default_args,
     description='A simple DAG to create a log table and insert dummy data',
     schedule_interval=None,  # Run on-demand
