@@ -55,3 +55,12 @@ To stop and remove the running containers, use:
 ```sh
 docker compose down
 ```
+
+## Dag File Details
+
+```plaintext
+f1_green_all/f1_green_all    -> load data from 2019-01 to 2021-07 simple Insert Into Select
+f1_green_monthly_simple/f1_yellow_monthly_simple    -> load from 2021-01 to 2021-07 unique records
+
+d1 to d4    -> sample dags
+```
