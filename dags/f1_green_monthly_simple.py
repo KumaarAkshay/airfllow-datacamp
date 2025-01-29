@@ -113,7 +113,8 @@ load_data_final_tbl = PostgresOperator(
             coalesce(pulocationid::text, '') || 
             coalesce(dolocationid::text, '') || 
             coalesce(fare_amount::text, '') || 
-            coalesce(trip_distance::text, '')
+            coalesce(trip_distance::text, '') ||
+            coalesce('{{ execution_date.strftime('%Y-%m') }}','')
         ),
         '{{ execution_date.strftime('%Y-%m') }}',
         vendorid::text, 
