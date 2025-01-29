@@ -147,4 +147,11 @@ load_data_final_tbl = PostgresOperator(
     dag=dag,
 )
 
-download_csv_task >> create_table_task >> load_data_staging >> load_data_final_tbl
+cleanup_task = BashOperator(
+    task_id='cleanup_files',
+    bash_command="rm -f {{ params.output_location }}/green_tripdata_{{ execution_date.strftime('%Y-%m') }}.csv",
+    params={'output_location': output_location},
+    dag=dag,
+)
+
+download_csv_task >> create_table_task >> load_data_staging >> load_data_final_tbl >> cleanup_task

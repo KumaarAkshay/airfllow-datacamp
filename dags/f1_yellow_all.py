@@ -21,12 +21,12 @@ def load_csv_to_postgres(file_path, table_name, postgres_conn_id):
 default_args = {
     'owner': 'airflow_akshay',
     'depends_on_past': True,       # True if task depends on the success of the same task in the previous DAG run
-    'start_date': datetime(2021, 1, 1),
+    'start_date': datetime(2019, 1, 1),
     'end_date': datetime(2021, 7, 31),
 }
 
 dag = DAG(
-    'simple_yellow_monthly',
+    'yellow_alldata',
     default_args=default_args,
     description='Upload data to PostgreSQL',
     schedule_interval='@monthly',
@@ -95,24 +95,14 @@ load_data_final_tbl = PostgresOperator(
     postgres_conn_id=conn_name,
     sql="""
     -- Insert into final table from staging table
-    INSERT INTO yellow_final (
-        unique_row_id, filename, vendorid, tpep_pickup_datetime, tpep_dropoff_datetime,
+    INSERT INTO yellow_final_all (
+        filename, vendorid, tpep_pickup_datetime, tpep_dropoff_datetime,
         passenger_count, trip_distance, ratecodeid,store_and_fwd_flag, pulocationid,
         dolocationid, payment_type, fare_amount,extra, mta_tax, tip_amount, tolls_amount,
         improvement_surcharge, total_amount, congestion_surcharge      
     )
     SELECT 
-        md5(
-            coalesce(vendorid::text, '') ||
-            coalesce(tpep_pickup_datetime::text, '') || 
-            coalesce(tpep_dropoff_datetime::text, '') || 
-            coalesce(pulocationid::text, '') || 
-            coalesce(dolocationid::text, '') || 
-            coalesce(fare_amount::text, '') || 
-            coalesce(trip_distance::text, '') ||
-            coalesce('{{ execution_date.strftime('%Y-%m') }}','')
-        ),
-        '{{ execution_date.strftime('%Y-%m') }}',
+        {{ execution_date.strftime('%Y-%m') }}',
         vendorid::text, 
         tpep_pickup_datetime::timestamp, 
         tpep_dropoff_datetime::timestamp, 
@@ -131,12 +121,11 @@ load_data_final_tbl = PostgresOperator(
         improvement_surcharge::double precision,
         total_amount::double precision,
         congestion_surcharge::double precision
-    FROM yellow_staging
-    ON CONFLICT (unique_row_id) DO NOTHING;
+    FROM yellow_staging ;
 
     -- Log execution
     INSERT INTO input_logs (dag_name, file_name, run_time)
-    VALUES ('yellow_staging', '{{ execution_date.strftime('%Y-%m-%d') }}', NOW());
+    VALUES ('yellow_all', '{{ execution_date.strftime('%Y-%m-%d') }}', NOW());
     """,
     dag=dag,
 )
