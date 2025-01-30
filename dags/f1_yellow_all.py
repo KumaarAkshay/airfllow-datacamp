@@ -102,7 +102,7 @@ load_data_final_tbl = PostgresOperator(
         improvement_surcharge, total_amount, congestion_surcharge      
     )
     SELECT 
-        {{ execution_date.strftime('%Y-%m') }}',
+        '{{ execution_date.strftime('%Y-%m') }}',
         vendorid::text, 
         tpep_pickup_datetime::timestamp, 
         tpep_dropoff_datetime::timestamp, 

@@ -14,6 +14,12 @@ Grant read/write permissions to the `output_files` directory:
 sudo chmod -R 777 output_files
 ```
 
+### Start Docker Containers
+Run the Docker Compose file to start the necessary services:
+```sh
+docker compose up -d
+```
+
 ## Configure Database
 
 ### Create Database Connection in pgAdmin
@@ -42,13 +48,7 @@ password        : airflow
 Port            : 5432
 ```
 
-## Run and Stop Containers
-
-### Start Docker Containers
-Run the Docker Compose file to start the necessary services:
-```sh
-docker compose up -d
-```
+## Stop Containers
 
 ### Stop Docker Containers
 To stop and remove the running containers, use:
